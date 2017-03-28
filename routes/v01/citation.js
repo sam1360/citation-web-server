@@ -1,8 +1,7 @@
-"use strict";
+const express = require('express');
+const citations = require('../../lib/citationGeneration');
 
-var express = require('express');
-var router = express.Router();
-var citations = require('../../lib/citationGeneration');
+const router = express.Router();
 
 router.get('/', (req, res) => {
   res.send('Citation web server api');
