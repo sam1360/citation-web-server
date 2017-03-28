@@ -7,12 +7,12 @@ router.use('/citation', require('./citation'));
 // used so Angular may be able to log out by 
 // simply destroying the token
 
-router.get('/', function(req, res) {
+router.get('/', (req, res) => {
   res.send('Citation System API');
-})
+});
 
-router.get('/about', function(req, res) {
+router.get('/about', (req, res) => {
   res.send('api.SoftwareCitationTools.com');
-})
+});
 
 module.exports = router;
