@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node bin/www.js"
   },
   "repository": {
     "type": "git",
@@ -33,10 +34,20 @@
     "citation-core": "^1.0.1",
     "express": "^4.15.0"
   },
+<<<<<<< HEAD
     "devDependencies": {
+=======
+  "devDependencies": {
+>>>>>>> 407cb05fd532df00c2de80d4dff97e632f68d267
     "eslint": "^3.13.1",
     "eslint-config-airbnb-base": "^11.0.1",
     "eslint-plugin-import": "^2.2.0",
     "mocha": "^3.2.0"
+<<<<<<< HEAD
+=======
+  },
+  "engines": {
+    "node": "6.10.0"
+>>>>>>> 407cb05fd532df00c2de80d4dff97e632f68d267
   }
 }
