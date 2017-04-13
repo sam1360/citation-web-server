@@ -1,5 +1,7 @@
 "use strict";
 
+const GITHUB_CLIENT_ID = '92ead414d69dd0f9ef84';
+
 function replaceCitation(msg, error) {
     var $citationOutput, $citationMsg;
 
@@ -24,22 +26,111 @@ function replaceCitation(msg, error) {
     }
 }
 
+function getGitHubToken() {
+    var code, data, secret;
+
+    // get the secret from the backend
+
+    data = {
+        clientId: GITHUB_CLIENT_ID
+    }
+
+    $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + '/v01/gitHub/secret/', data)
+        .done(function (returnData) {
+            secret = returnData.secret;
+        })
+        .fail(function (jqxhr, status, err) {
+            console.error('Error (HTTP status code ' + status + '): ' + err);
+            return;
+        });
+
+    // get the ouath code from GitHub
+
+    data = {
+        client_id: GITHUB_CLIENT_ID,
+        redirect_uri: window.location.href,
+        state: secret
+    }
+
+    $.get('https://github.com/login/oauth/authorize', data)
+        .done(function (returnData) {
+            if (returnData.state == secret) {
+                code = returnData.code;
+            }
+            else {
+                console.error('Potential cross-site request forgery attack detected. Secrets do not match!');
+                return;
+            }
+        })
+        .fail(function (jqxhr, status, err) {
+            console.error('Error (HTTP status code ' + status + '): ' + err);
+            return;
+        });
+
+    // get the oauth token from the backend
+
+    data = {
+        code: code,
+        secret: secret
+    }
+
+    $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + '/v01/gitHub/token/', data)
+        .done(function (returnData) {
+            // set the cookie with a max age of two weeks
+            document.cookie = 'gitHubToken=' + returnData.token + '; max-age=1210000';
+        })
+        .fail(function (jqxhr, status, err) {
+            console.error('Error (HTTP status code ' + status + '): ' + err);
+        });
+}
+
 function getCitation() {
-    var data = {
+    var data, authToken, src;
+
+    src = $('#citationUrl').val();
+
+    // If a GitHub URL is used, perform special checks to make sure we have / get a GitHub Oauth key
+    if (~src.toLowerCase().indexOf('github.com')) {
+        if (~document.cookie.indexOf('gitHubToken=')) {
+            // user has an active authentication token for GitHub
+            authToken = document.cookie.match(/gitHubToken=.*;/)[0].slice(12, -1);
+        }
+        else {
+            // user does not have an active GitHub token
+            $('authorizeGitHubModal').modal('open');
+            return;
+        }
+    }
+
+    data = {
         style: $('#citationFormat').val(),
-        url: $('#citationUrl').val()
+        token: authToken ? authToken : null,
+        url: src
     }
 
     $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + '/v01/citation/', data)
         .done(function (returnData) {
             console.log(returnData);
-            replaceCitation(returnData.citation);
+            if (returnData.citation) {
+                replaceCitation(returnData.citation);
+            }
+            else {
+                console.error("Error: Empty citation returned.");
+                replaceCitation("Unable to generate citation. Please check your citation URL and try again.", true);
+            }
+
         })
         .fail(function (jqxhr, status, err) {
             console.error("Error (HTTP status code )" + status + "): " + err);
             replaceCitation("Unable to generate citation. Please check your citation URL and try again.", true);
         });
 }
+
+$("#authorizeGitHubModal").modal({show: false});
+$("#authorizeGitHubBtn").click(function (evt) {
+    getGitHubToken();
+    $("#authorizeGitHubModal").modal('close');
+});
 
 $('#citeBtn').click(function (evt) {
     getCitation();
