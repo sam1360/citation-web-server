@@ -1,11 +1,8 @@
 
 
 function replaceCitation(msg, error) {
-  let $citationOutput,
-    $citationMsg;
-
-  $citationOutput = $('#citationOutput');
-  $citationMsg = $citationOutput.children('.panel-body');
+  const $citationOutput = $('#citationOutput');
+  const $citationMsg = $citationOutput.children('.panel-body');
 
   if (error) {
     $citationMsg.addClass('error');
@@ -26,20 +23,15 @@ function replaceCitation(msg, error) {
 }
 
 function getCitation(window) {
-  let data,
-    url;
+  const url = 'https://boiling-lake-36327.herokuapp.com/v01/citation/';
 
-  url = 'https://boiling-lake-36327.herokuapp.com/v01/citation/';
-  console.log(url);
-
-  data = {
+  const data = {
     style: $('#citationFormat').val(),
     url: $('#citationUrl').val(),
   };
 
   $.post(url, data)
         .done((returnData) => {
-          console.log(returnData);
           replaceCitation(returnData.citation);
         })
         .fail((jqxhr, status, err) => {
