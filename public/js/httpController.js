@@ -4,10 +4,8 @@ const GITHUB_CLIENT_ID = '92ead414d69dd0f9ef84';
 const urlParams = new Map(window.location.search.slice(1).split('&').map((e) => [e.split('=')[0], e.split('=')[1]]));
 
 function replaceCitation(msg, error) {
-  var $citationOutput, $citationMsg;
-
-  $citationOutput = $('#citationOutput');
-  $citationMsg = $citationOutput.children(".panel-body");
+  const $citationOutput = $('#citationOutput');
+  const $citationMsg = $citationOutput.children('.panel-body');
 
   if (error) {
     $citationMsg.addClass("error");
@@ -89,7 +87,7 @@ function getCitation() {
     }
   }
 
-  data = {
+  const data = {
     style: $('#citationFormat').val(),
     token: authToken ? authToken : null,
     url: src
