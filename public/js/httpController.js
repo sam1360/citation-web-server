@@ -22,17 +22,17 @@ function replaceCitation(msg, error) {
   }
 }
 
-function getCitation(window) {
-  const url = 'https://boiling-lake-36327.herokuapp.com/v01/citation/';
 
-  const data = {
-    style: $('#citationFormat').val(),
-    url: $('#citationUrl').val(),
-  };
+function getCitation() {
+    var data = {
+        style: $('#citationFormat').val(),
+        url: $('#citationUrl').val()
+    }
 
-  $.post(url, data)
-        .done((returnData) => {
-          replaceCitation(returnData.citation);
+    $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + '/v01/citation/', data)
+        .done(function (returnData) {
+            console.log(returnData);
+            replaceCitation(returnData.citation);
         })
         .fail((jqxhr, status, err) => {
           console.error(`Error (HTTP status code )${status}): ${err}`);
