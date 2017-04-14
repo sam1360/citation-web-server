@@ -1,6 +1,7 @@
 "use strict";
 
 const GITHUB_CLIENT_ID = '92ead414d69dd0f9ef84';
+const urlParams = new Map(window.location.search.slice(1).split('&').map((e) => [e.split('=')[0], e.split('=')[1]]));
 
 function replaceCitation(msg, error) {
     var $citationOutput, $citationMsg;
@@ -26,8 +27,8 @@ function replaceCitation(msg, error) {
     }
 }
 
-function getGitHubToken() {
-    var code, data, secret;
+function getGitHubCode() {
+    var data, secret;
 
     // get the secret from the backend
 
@@ -44,34 +45,20 @@ function getGitHubToken() {
             return;
         });
 
-    // get the ouath code from GitHub
+    // save the secret as a cookie, with a 15 minute expiration
+    document.cookie = 'gitHubSecret=' + secret + '; max-age=900';
 
-    data = {
-        client_id: GITHUB_CLIENT_ID,
-        redirect_uri: window.location.href,
-        state: secret
-    }
+    // redirect to GitHub to complete the authorization
+    window.location.href = 'https://github.com/login/oauth/authorize'
+                            + '?client_id=' + GITHUB_CLIENT_ID
+                            + '&redirect_uri=' + window.location.href
+                            + '&state=' + secret;
+}
 
-    $.get('https://github.com/login/oauth/authorize', data)
-        .done(function (returnData) {
-            if (returnData.state == secret) {
-                code = returnData.code;
-            }
-            else {
-                console.error('Potential cross-site request forgery attack detected. Secrets do not match!');
-                return;
-            }
-        })
-        .fail(function (jqxhr, status, err) {
-            console.error('Error (HTTP status code ' + status + '): ' + err);
-            return;
-        });
-
-    // get the oauth token from the backend
-
-    data = {
-        code: code,
-        secret: secret
+function getGitHubToken() {
+    var data = {
+        code: urlParams.get('code'),
+        secret: urlParams.get('state')
     }
 
     $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + '/v01/gitHub/token/', data)
@@ -128,10 +115,13 @@ function getCitation() {
 
 $("#authorizeGitHubModal").modal({show: false});
 $("#authorizeGitHubBtn").click(function (evt) {
-    getGitHubToken();
-    $("#authorizeGitHubModal").modal('close');
+    getGitHubCode();
 });
 
 $('#citeBtn').click(function (evt) {
     getCitation();
 });
+
+if (urlParams.has('code')) {
+    getGitHubToken();
+}
