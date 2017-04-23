@@ -1,19 +1,17 @@
-"use strict";
+
 
 const GITHUB_CLIENT_ID = '8e940d42208bff4eba61';
-const urlParams = new Map(window.location.search.slice(1).split('&').map((e) => [e.split('=')[0], e.split('=')[1]]));
+const urlParams = new Map(window.location.search.slice(1).split('&').map(e => [e.split('=')[0], e.split('=')[1]]));
 
 function replaceCitation(msg, error) {
-  var $citationOutput, $citationMsg;
-
-  $citationOutput = $('#citationOutput');
-  $citationMsg = $citationOutput.children(".panel-body");
+  const $citationOutput = $('#citationOutput');
+  const $citationMsg = $citationOutput.children('.panel-body');
 
   if (error) {
-    $citationMsg.addClass("error");
+    $citationMsg.addClass('error');
   }
   else {
-    $citationMsg.removeClass("error");
+    $citationMsg.removeClass('error');
   }
 
   if (!$citationOutput.is(':visible')) {
@@ -28,30 +26,29 @@ function replaceCitation(msg, error) {
 }
 
 function getGitHubCode() {
-  var data, secret;
+  let secret;
 
   // get the secret from the backend
 
-  data = {
-    clientId: GITHUB_CLIENT_ID
-  }
+  const data = {
+    clientId: GITHUB_CLIENT_ID,
+  };
 
-  console.log(window.location.href.slice(0, window.location.href.indexOf('?')) + 'v01/gitHub/secret/');
+  console.log(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/`);
 
-  $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + 'v01/gitHub/secret/', data)
-    .done(function (returnData) {
+  $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/`, data)
+    .done((returnData) => {
       secret = returnData.secret;
-      document.cookie = 'gitHubSecret=' + secret + '; max-age=900';
+      document.cookie = `gitHubSecret=${secret}; max-age=900`;
 
 // redirect to GitHub to complete the authorization
-      window.location.href = 'https://github.com/login/oauth/authorize'
-            + '?client_id=' + GITHUB_CLIENT_ID
-            + '&redirect_uri=' + window.location.href
-            + '&state=' + secret;
+      window.location.href = `${'https://github.com/login/oauth/authorize'
+            + '?client_id='}${GITHUB_CLIENT_ID
+             }&redirect_uri=${window.location.href
+             }&state=${secret}`;
     })
-    .fail(function (jqxhr, status, err) {
-      console.error('Error (HTTP status code ' + status + '): ' + err);
-      return;
+    .fail((jqxhr, status, err) => {
+      console.error(`Error (HTTP status code ${status}): ${err}`);
     });
 
   // // save the secret as a cookie, with a 15 minute expiration
@@ -65,23 +62,25 @@ function getGitHubCode() {
 }
 
 function getGitHubToken() {
-  var data = {
+  const data = {
     code: urlParams.get('code'),
-    secret: urlParams.get('state')
-  }
+    secret: urlParams.get('state'),
+  };
 
-  $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + 'v01/gitHub/token/', data)
-    .done(function (returnData) {
+  $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/token/`, data)
+    .done((returnData) => {
       // set the cookie with a max age of two weeks
-      document.cookie = 'gitHubToken=' + returnData.token + '; max-age=1210000';
+      document.cookie = `gitHubToken=${returnData.token}; max-age=1210000`;
     })
-    .fail(function (jqxhr, status, err) {
-      console.error('Error (HTTP status code ' + status + '): ' + err);
+    .fail((jqxhr, status, err) => {
+      console.error(`Error (HTTP status code ${status}): ${err}`);
     });
 }
 
 function getCitation() {
-  var data, authToken, src;
+  const data;
+  let authToken;
+  const src;
 
   src = $('#citationUrl').val();
 
@@ -92,7 +91,7 @@ function getCitation() {
       authToken = document.cookie.match(/gitHubToken=.*/)[0].slice(12, document.cookie.length);
     }
     else {
-      console.log("in here")
+      console.log('in here');
       // user does not have an active GitHub token
       $('#authorizeGitHubModal').modal('show');
       return;
@@ -101,34 +100,33 @@ function getCitation() {
 
   data = {
     style: $('#citationFormat').val(),
-    token: authToken ? authToken : null,
-    url: src
-  }
+    token: authToken || null,
+    url: src,
+  };
 
-  $.post(window.location.href.slice(0, window.location.href.indexOf('?')) + 'v01/citation/', data)
-    .done(function (returnData) {
+  $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/citation/`, data)
+    .done((returnData) => {
       console.log(returnData);
       if (returnData.citation) {
         replaceCitation(returnData.citation);
       }
       else {
-        console.error("Error: Empty citation returned.");
-        replaceCitation("Unable to generate citation. Please check your citation URL and try again.", true);
+        console.error('Error: Empty citation returned.');
+        replaceCitation('Unable to generate citation. Please check your citation URL and try again.', true);
       }
-
     })
-    .fail(function (jqxhr, status, err) {
-      console.error("Error (HTTP status code )" + status + "): " + err);
-      replaceCitation("Unable to generate citation. Please check your citation URL and try again.", true);
+    .fail((jqxhr, status, err) => {
+      console.error(`Error (HTTP status code )${status}): ${err}`);
+      replaceCitation('Unable to generate citation. Please check your citation URL and try again.', true);
     });
 }
 
-$("#authorizeGitHubModal").modal({show: false});
-$("#authorizeGitHubBtn").click(function (evt) {
+$('#authorizeGitHubModal').modal({ show: false });
+$('#authorizeGitHubBtn').click((evt) => {
   getGitHubCode();
 });
 
-$('#citeBtn').click(function (evt) {
+$('#citeBtn').click((evt) => {
   getCitation();
 });
 
