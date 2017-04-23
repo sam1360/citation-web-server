@@ -78,11 +78,8 @@ function getGitHubToken() {
 }
 
 function getCitation() {
-  const data;
   let authToken;
-  const src;
-
-  src = $('#citationUrl').val();
+  const src = $('#citationUrl').val();
 
   // If a GitHub URL is used, perform special checks to make sure we have / get a GitHub Oauth key
   if (~src.toLowerCase().indexOf('github.com')) {
@@ -98,7 +95,7 @@ function getCitation() {
     }
   }
 
-  data = {
+  const data = {
     style: $('#citationFormat').val(),
     token: authToken || null,
     url: src,
