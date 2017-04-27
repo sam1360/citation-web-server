@@ -35,8 +35,13 @@ function getGitHubCode() {
   };
 
   console.log(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/`);
+  const secretUrl = window.location.href.includes('?') ? 
+          `${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/` :
+          `${window.location.href}v01/github/secret`;
 
-  $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/`, data)
+
+  console.log(secretUrl);
+  $.post(secretUrl, data)
     .done((returnData) => {
       secret = returnData.secret;
       document.cookie = `gitHubSecret=${secret}; max-age=900`;
@@ -67,7 +72,11 @@ function getGitHubToken() {
     secret: urlParams.get('state'),
   };
 
-  $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/token/`, data)
+  const tokenUrl = window.location.href.includes('?') ? 
+        `${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/token/` :
+        `${window.location.href}v01/github/token`;
+
+  $.post(tokenUrl, data)
     .done((returnData) => {
       // set the cookie with a max age of two weeks
       document.cookie = `gitHubToken=${returnData.token}; max-age=1210000`;
