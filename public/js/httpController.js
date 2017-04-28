@@ -1,6 +1,6 @@
 
 
-const GITHUB_CLIENT_ID = '8e940d42208bff4eba61';
+const GITHUB_CLIENT_ID = '2c034c1c587df515c7d9';
 const urlParams = new Map(window.location.search.slice(1).split('&').map(e => [e.split('=')[0], e.split('=')[1]]));
 
 function replaceCitation(msg, error) {
@@ -27,6 +27,8 @@ function replaceCitation(msg, error) {
 
 function getGitHubCode() {
   let secret;
+  let secretUrl;
+
 
   // get the secret from the backend
 
@@ -34,19 +36,20 @@ function getGitHubCode() {
     clientId: GITHUB_CLIENT_ID,
   };
 
-  console.log(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/`);
-  const secretUrl = window.location.href.includes('?') ? 
-          `${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/` :
-          `${window.location.href}v01/github/secret`;
+  if (window.location.href.includes('?')) {
+    secretUrl = `${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/secret/`;
+  }
+  else {
+    secretUrl = `${window.location.href}v01/github/secret`;
+  }
 
 
-  console.log(secretUrl);
   $.post(secretUrl, data)
     .done((returnData) => {
       secret = returnData.secret;
+      // set the cookie for 15 minutes
       document.cookie = `gitHubSecret=${secret}; max-age=900`;
 
-// redirect to GitHub to complete the authorization
       window.location.href = `${'https://github.com/login/oauth/authorize'
             + '?client_id='}${GITHUB_CLIENT_ID
              }&redirect_uri=${window.location.href
@@ -55,15 +58,6 @@ function getGitHubCode() {
     .fail((jqxhr, status, err) => {
       console.error(`Error (HTTP status code ${status}): ${err}`);
     });
-
-  // // save the secret as a cookie, with a 15 minute expiration
-  // document.cookie = 'gitHubSecret=' + secret + '; max-age=900';
-
-  // // redirect to GitHub to complete the authorization
-  // window.location.href = 'https://github.com/login/oauth/authorize'
-  //             + '?client_id=' + GITHUB_CLIENT_ID
-  //             + '&redirect_uri=' + window.location.href
-  //             + '&state=' + secret;
 }
 
 function getGitHubToken() {
@@ -72,9 +66,14 @@ function getGitHubToken() {
     secret: urlParams.get('state'),
   };
 
-  const tokenUrl = window.location.href.includes('?') ? 
-        `${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/token/` :
-        `${window.location.href}v01/github/token`;
+  let tokenUrl;
+
+  if (window.location.href.includes('?')) {
+    tokenUrl = `${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/gitHub/token/`;
+  }
+  else {
+    tokenUrl = `${window.location.href}v01/github/token`;
+  }
 
   $.post(tokenUrl, data)
     .done((returnData) => {
@@ -97,7 +96,6 @@ function getCitation() {
       authToken = document.cookie.match(/gitHubToken=.*/)[0].slice(12, document.cookie.length);
     }
     else {
-      console.log('in here');
       // user does not have an active GitHub token
       $('#authorizeGitHubModal').modal('show');
       return;
@@ -112,7 +110,6 @@ function getCitation() {
 
   $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/citation/`, data)
     .done((returnData) => {
-      console.log(returnData);
       if (returnData.citation) {
         replaceCitation(returnData.citation);
       }
