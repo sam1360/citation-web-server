@@ -2,18 +2,17 @@
 const express = require('express');        // call express
 const bodyParser = require('body-parser');
 
-// Import configuration variables
-const path = require('path');
-
 const app = express();                 // define our app using express
 
+
+// Import configuration variables
+const path = require('path');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST.
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// set our port
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our version 01 routes will be prefixed with /v01

@@ -6,7 +6,8 @@
     "rules": {
         "max-len": "off",
         "brace-style": ["error", "stroustrup"],
-        "no-unused-vars": ["error", { "args": "none" }]
+        "no-unused-vars": ["error", { "args": "none" }],
+        "no-bitwise": "off"
     },
     "env": {
         "node": true,
