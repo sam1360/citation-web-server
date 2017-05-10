@@ -1,6 +1,8 @@
 
 
-const GITHUB_CLIENT_ID = '92ead414d69dd0f9ef84';
+// const GITHUB_CLIENT_ID = '92ead414d69dd0f9ef84';
+const GITHUB_CLIENT_ID = '7ee065082a2f0242619f';
+
 
 const urlParams = new Map(window.location.search.slice(1).split('&').map(e => [e.split('=')[0], e.split('=')[1]]));
 
@@ -110,7 +112,10 @@ function getCitation() {
     url: src,
   };
 
-  $.post(`${window.location.href.slice(0, window.location.href.indexOf('?'))}v01/citation/`, data)
+  const citationUrl = window.location.protocol+ "//" + window.location.hostname + "/v01/citation";
+
+
+  $.post(citationUrl, data)
     .done((returnData) => {
       if (returnData.citation) {
         replaceCitation(returnData.citation);
@@ -136,5 +141,12 @@ $('#citeBtn').click((evt) => {
 });
 
 if (urlParams.has('code')) {
-  getGitHubToken();
+  if(~document.cookie.indexOf('gitHubToken=')){
+
+  }
+  else{
+    getGitHubToken();
+  }
 }
+
+
