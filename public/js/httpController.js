@@ -110,7 +110,7 @@ function getCitation() {
     url: src,
   };
 
-  const citationUrl = window.location.protocol+ "//" + window.location.hostname + "/v01/citation";
+  const citationUrl = window.location.protocol + "//" + window.location.hostname + "/v01/citation";
 
 
   $.post(citationUrl, data)
@@ -139,10 +139,10 @@ $('#citeBtn').click((evt) => {
 });
 
 if (urlParams.has('code')) {
-  if(~document.cookie.indexOf('gitHubToken=')){
+  if (~document.cookie.indexOf('gitHubToken=')) {
 
   }
-  else{
+  else {
     getGitHubToken();
   }
 }
